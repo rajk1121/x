@@ -1,73 +1,170 @@
-var plans = require('../data/plan.json')
-const deleteplan = function (req, res) {
-    const ied = req.params.id - 1;
-    var done = false;
-    for (var i = 0; i < user.length; i++) {
-        if (paln[i]["id"] === ied) {
+const PlanModels = require('../model/planModel');
+const deleteplan = async function (req, res) {
+    try {
+        const ied = req.params.id;
+        var result = await PlanModels.findByIdAndDelete(ied)
 
-            plans.splice(ied, 1);
-            done = true;
-        }
-        if (done) {
-            plans[i]["id"] = plans[i]["id"] - 1;
-        }
-    }
-    if (done) {
-        fs.writeFileSync('../data/plan.json', JSON.stringify(plan));
-        res.status(200).json({ status: "Done" });
-    } else {
-        res.status(404).json({ status: "No such Data" });
-    }
 
-}
-const patchplan = function (req, res) {
-    const id = req.params.id;
-    if (req.body.name && req.body.description) {
-        var obj = plans.find(el => {
-            return el.id == id
+        res.status(201).json({
+            status: "Deleted",
+            results: result
         })
-        // if (!obj) {
-        for (var key in req.body) {
-            obj[key] = req.body[key];
-        }
+    }
 
-        res.status(201).json({ status: "Done" });
-        fs.writeFileSync('./plan.json', JSON.stringify(plans));
-        // }
-        //  else {
-        //     res.status(404).json({ status: "Data Not Found" })
-        // }
-    } else {
-        res.status(404).send("Cannot perform Update Operation");
+    catch (err) {
+        res.status(404).json({
+            status: "Could Not Delete",
+            result: err
+        })
+    }
+}
+
+
+
+
+
+const patchplan = async function (req, res) {
+    try {
+        const ide = req.params.id;
+        const update = req.body;
+        var result = await PlanModels.findByIdAndUpdate(ide, update, { new: true })
+
+
+        res.status(201).json({
+            status: "Updated",
+            results: result
+        })
+
+    }
+    catch (err) {
+
+        res.status(404).json({
+            status: "Could Not Updated",
+            result: err
+        })
 
     }
 
-    res.end();
 }
 
-const postplan = function (req, res) {
-    plans.push(req.body);
-    plans[plans.length - 1].id = plans.length;
-    var str = JSON.stringify(plan);
-    fs.writeFileSync('./plan.json', str)
-    res.status(200).json({ status: "Done" })
-    res.end();
+const postplan = async function (req, res) {
+
+    PlanModels.create(req.body).then(doc => {
+        res.status(201).json({
+            status: "done",
+            result: doc
+
+        })
+    }).catch(err => {
+        res.status(404).json({
+            status: "Couldn;t Post",
+            result: err
+        })
+    })
+
 }
 
 
-const getplan = function (req, res) {
-    res.status(200).json(plans);
-    res.end();
+const getplan = async function (req, res) {
+    try {
+        let reqObj = { ...req.query };
+        console.log(req.query)
+        let ExcludeFromQuery = ['fields', 'page', 'sort', 'limit'];
+        for (let i = 0; i < ExcludeFromQuery.length; i++) {
+            delete reqObj[ExcludeFromQuery[i]];
+        }
+        let limit = +req.query.limit || 2;
+        let skip = limit * ((req.query.page - 1) || 0) || 0;
+
+        console.log(skip)
+
+        let queryString = JSON.stringify(reqObj);
+        queryString = queryString.replace(/\bgt|lt|gte|lte\b/g, function (match) {
+            return '$' + match;
+        })
+        console.log(queryString)
+        reqObj = JSON.parse(queryString);
+        // if (req.query.fields) {
+        //     var proj = {};
+
+        //     var fields = req.query.fields.split(",");
+
+        //     for (let i = 0; i < fields.length; i++) {
+        //         proj[fields[i]] = true
+        //     }
+        // }
+
+        let result = PlanModels.find(reqObj);
+        if (req.query.sort) {
+            let reqObj = "";
+            let sortString = req.query.sort.split(",");
+            console.log(sortString)
+            reqObj = sortString.join(" ")
+
+            console.log(reqObj)
+            // console.log('hello')
+            result = result.sort(reqObj);
+        }
+
+
+        result = result.limit(limit).skip(skip);
+
+
+        if (req.query.fields) {
+            var proj = "";
+
+            var fields = req.query.fields.split(",");
+            proj = fields.join(" ");
+        } else {
+            proj = "-__v";
+        }
+        result = await result.select(proj);
+        // console.log('hello')
+        res.status(201).json({
+            status: "Found",
+            results: result
+        })
+    }
+    catch (err) {
+        res.status(404).json({
+            status: "Failed",
+            result: err
+        })
+    }
+
+}
+const checkURL = function (req, res, next) {
+    if (req.url == '/top5plans') {
+      //  console.log(req.query);
+        req.query.sort = 'price,ratingsAverage';
+        req.query.fields = 'name,description,ratingAverage';
+        req.query.limit = 5;
+
+    }
+    next();
 }
 const getspecificplan =
-    function (req, res) {
-        const id = req.params.id;
-        var obj = user.find(el => el.id == id);
-        if (obj !== undefined)
-            res.status(200).json(obj);
-        else {
-            res.status(404).send("<html><body><h2>Not Found</h2></body><html")
+    async function (req, res) {
+        try {
+            const ide = req.params.id;
+            console.log(ide)
+            var result = await PlanModels.findById(ide)
+            console.log(result)
+            res.status(201).json({
+                "status": "Found",
+                results: result
+            })
         }
-        res.end();
+        catch (err) {
+            res.status(404).json({
+                status: "Error",
+                result: err
+            })
+
+
+        }
     }
-module.exports = { getplan, getspecificplan, patchplan, deleteplan, postplan };
+
+
+
+module.exports = { getplan, getspecificplan, patchplan, deleteplan, postplan, checkURL };

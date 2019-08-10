@@ -1,73 +1,152 @@
-var user = require('../data/user.json')
-const getuser = function (req, res) {
-    res.status(200).json(user);
-    res.end();
-}
-const getspecificuser = function (req, res) {
-    const id = req.params.id;
-    var obj = user.find(el => el.id == id);
-    if (obj !== undefined)
-        res.status(200).json(obj);
-    else {
-        res.status(404).send("<html><body><h2>Not Found</h2></body><html")
+const mongoose = require('mongoose');
+const userModel = require('../model/userModel.js');
+const getuser = async function (req, res) {
+    try {
+        let reqObj = { ...req.query };
+        let ExcludeFromQuery = ['fields', 'page', 'sort', 'limit'];
+        for (let i = 0; i < ExcludeFromQuery.length; i++) {
+            delete reqObj[ExcludeFromQuery[i]];
+        }
+        let limit = +req.query.limit || 2;
+        let skip = limit * ((req.query.page - 1) || 1) || 0;
+        let queryString = JSON.stringify(reqObj);
+        queryString = queryString.replace(/\bgt|lt|gte|lte\b/g, function (match) {
+            return '$' + match;
+        })
+        console.log(queryString)
+        reqObj = JSON.parse(queryString);
+        // if (req.query.fields) {
+        //     var proj = {};
+
+        //     var fields = req.query.fields.split(",");
+
+        //     for (let i = 0; i < fields.length; i++) {
+        //         proj[fields[i]] = true
+        //     }
+        // }
+
+        let result = userModel.find(reqObj);
+        if (req.query.sort) {
+
+            result = result.sort(-req.query.sort);
+        }
+
+        result = result.limit(limit).skip(skip);
+
+
+        if (req.query.fields) {
+            var proj = "";
+
+            var fields = req.query.fields.split(",");
+            proj = fields.join(" ");
+        } else {
+            proj = "-__v";
+        }
+        result = await result.select(proj);
+        // result = await result;
+        res.status(201).json({
+            status: "Found",
+            results: result
+        })
     }
-    res.end();
+    catch (err) {
+        res.status(404).json({
+            status: "Failed",
+            result: err
+        })
+    }
+
+}
+
+
+const getspecificuser = async function (req, res) {
+    try {
+        const ide = req.params.id;
+        var result = await userModel.findById(ide)
+
+        res.status(201).json({
+            status: "Found",
+            results: result
+        })
+
+
+
+    }
+    catch (err) {
+
+        res.status(404).json({
+            status: "Error",
+            result: err
+        })
+
+
+    }
+
 }
 const postuser = function (req, res) {
-    user.push(req.body);
-    user[user.length - 1].id = user.length;
-    var str = JSON.stringify(user);
-    fs.writeFileSync('./user.json', str)
-    res.status(200).json({ status: "Done" })
-    res.end();
-}
-const patchuser = function (req, res) {
-    const id = req.params.id;
-    if (req.body.name && req.body.username) {
-        var obj = user.find(el => {
-            return el.id == id
+
+    userModel.create(req.body).then(doc => {
+        res.status(201).json({
+            status: "Done",
+            result: doc
         })
-        // if (!obj) {
-        for (var key in req.body) {
-            obj[key] = req.body[key];
-        }
-        fs.writeFileSync('./user.json', JSON.stringify(user));
-        res.status(201).json({ status: "Done" });
-        // } 
-        // else {
-        //     res.status(404).json({ status: "Data Not Found" });
-        // }
-    }
-    else {
-        res.status(404).send("Cannot perform Update Operation");
-    }
-
-    res.end();
+    }).catch(err => {
+        res.status(404).json({
+            status: "Failed",
+            result: err
+        })
+    })
 }
-const deleteuser = function (req, res) {
-    const ied = req.params.id - 1;
-    var done = false;
-    for (var i = 0; i < user.length; i++) {
-        if (user[i].id == ied) {
-            console.log("Hello")
-            user.splice(ied, 1);
-            done = true;
-            continue;
-        }
-        if (done) {
-            user[i]["id"] = user[i]["id"] - 1;
-        }
+
+
+
+
+const patchuser = async function (req, res) {
+    try {
+        const ide = req.params.id;
+        const update = req.body;
+        var result = await userModel.findByIdAndUpdate(ide, update, { new: true })
+
+
+        res.status(201).json({
+            status: "Updated",
+            results: result
+        })
+
+    }
+    catch (err) {
+
+        res.status(404).json({
+            status: "Could Not Updated",
+            result: err
+        })
 
     }
 
-    if (done) {
-        fs.writeFileSync('../data/user.json', JSON.stringify(user));
-        res.status(200).json({ status: "Done" });
-    } else {
-        res.status(404).json({ status: "No such Data" });
-    }
 
-    res.end();
 }
+const deleteuser = async function (req, res) {
+    try {
+        const ied = req.params.id;
+        var result = await userModel.findByIdAndDelete(ied)
+
+
+        res.status(201).json({
+            status: "Deleted",
+            results: result
+        })
+    }
+
+    catch (err) {
+        res.status(404).json({
+            status: "Could Not Delete",
+            result: err
+        })
+    }
+
+
+}
+
+
 
 module.exports = { getuser, getspecificuser, postuser, patchuser, deleteuser };
