@@ -28,7 +28,6 @@ const PlanSchema = new mongoose.Schema({
 
         }
     },
-    duration: { type: Number },
     name: {
         type: String, required: true,
         validate: function abc(val) {
@@ -41,8 +40,25 @@ const PlanSchema = new mongoose.Schema({
 
 
     },
+    permonth: {
+        type: Number,
+        required:true
+    },
     price: { type: Number, required: true },
-    description: { type: String, required: true, default: 'Cool Stuff' }
+    description: {
+        d1: {
+            type: String
+        },
+        d2: {
+            type: String
+        },
+        d3: {
+            type: String
+        },
+        d4: {
+            type: String
+        }
+    }
 })
 const PlanModels = mongoose.model('PlanModel', PlanSchema);
 module.exports = PlanModels;

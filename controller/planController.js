@@ -76,13 +76,13 @@ const getplan = async function (req, res) {
         let limit = +req.query.limit || 2;
         let skip = limit * ((req.query.page - 1) || 0) || 0;
 
-        console.log(skip)
+        // console.log(skip)
 
         let queryString = JSON.stringify(reqObj);
         queryString = queryString.replace(/\bgt|lt|gte|lte\b/g, function (match) {
             return '$' + match;
         })
-        console.log(queryString)
+        // console.log(queryString)
         reqObj = JSON.parse(queryString);
         // if (req.query.fields) {
         //     var proj = {};
@@ -98,10 +98,10 @@ const getplan = async function (req, res) {
         if (req.query.sort) {
             let reqObj = "";
             let sortString = req.query.sort.split(",");
-            console.log(sortString)
+            // console.log(sortString)
             reqObj = sortString.join(" ")
 
-            console.log(reqObj)
+            // console.log(reqObj)
             // console.log('hello')
             result = result.sort(reqObj);
         }

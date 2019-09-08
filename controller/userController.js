@@ -1,5 +1,11 @@
 const mongoose = require('mongoose');
 const userModel = require('../model/userModel.js');
+const logout = async (req, res, next) => {
+    res.cookie('jwt', "logout", {
+        expires: new Date(Date.now() * 20)
+    })
+    res.status(201).send("User Logged Out");
+}
 const getuser = async function (req, res) {
     try {
         let reqObj = { ...req.query };
@@ -7,13 +13,17 @@ const getuser = async function (req, res) {
         for (let i = 0; i < ExcludeFromQuery.length; i++) {
             delete reqObj[ExcludeFromQuery[i]];
         }
+        console.log("user****")
+        console.log(req.cookies);
+        console.log("user****")
+        // console.log("jvunjiu")
         let limit = +req.query.limit || 2;
         let skip = limit * ((req.query.page - 1) || 1) || 0;
         let queryString = JSON.stringify(reqObj);
         queryString = queryString.replace(/\bgt|lt|gte|lte\b/g, function (match) {
             return '$' + match;
         })
-        console.log(queryString)
+        // console.log(queryString)
         reqObj = JSON.parse(queryString);
         // if (req.query.fields) {
         //     var proj = {};
@@ -149,4 +159,4 @@ const deleteuser = async function (req, res) {
 
 
 
-module.exports = { getuser, getspecificuser, postuser, patchuser, deleteuser };
+module.exports = { getuser, getspecificuser, postuser, patchuser, deleteuser, logout };

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require("validator");
+const crypto = require('crypto');
 const bcrypt = require('bcrypt')
 const DB = "mongodb+srv://rajk1121:Rajat1121@cluster0-chamy.mongodb.net/test?retryWrites=true&w=majority"
 mongoose.connect(DB, {
@@ -62,22 +63,29 @@ const UserSchema = new mongoose.Schema({
         validate: validator.isEmail
     },
     address: {
-        street: { type: String, required: true },
-        suite: { type: String, required: true },
+        street: { type: String, default: "ABCDEF" },
+        suite: { type: String, default: "ABCDEFG" },
         city: {
-            type: String, required: true,
+            type: String,
             validate: function abc(val) {
                 var str = val.split(" ").join("");
                 if (!validator.isAlpha(str)) {
                     throw new error("city contains numerics")
                 }
 
-            }
+            },
+            default: "Delhi"
         },
-        zipcode: { type: Number, required: true },
+        zipcode: { type: Number },
 
     },
-    phone: { type: Number, required: true }
+    phone: { type: Number, required: true },
+    resetToken: {
+        type: String
+    },
+    ExpiresIn: {
+        type: Date
+    }
 
 })
 UserSchema.pre('save', async function (next) {
@@ -86,6 +94,15 @@ UserSchema.pre('save', async function (next) {
 
     next();
 })
+UserSchema.methods.abc = function () {
+    // const crypto  =require('crypto')
+    const cryptoToken = crypto.randomBytes(32).toString('hex');
+
+    this.resetToken = crypto.createHash('sha256').update(cryptoToken).digest('hex');
+    console.log(this.resetToken)
+    this.ExpiresIn = Date.now() + 1000 * 60 * 7;
+    return cryptoToken;
+}
 const UserModels = mongoose.model('UserModel', UserSchema);
 
 
