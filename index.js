@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const planRouter = require('./router/planRouter.js');
 const userRouter = require('./router/userRouter.js');
+const bookingRouter = require('./router/bookingRouter');
 const app = express();
 const viewRouter = require('./router/viewRouter');
 const cookieParser = require('cookie-parser');
@@ -38,6 +39,7 @@ app.use(cookieParser());
 app.use('/', viewRouter);
 app.use('/api/plans', planRouter);
 app.use('/api/user', userRouter);
+app.use('/api/bookings', bookingRouter);
 
 app.get('*', (req, res) => {
     res.status(404).send("Error 404 Not Found");

@@ -57,7 +57,7 @@ const postplan = async function (req, res) {
         })
     }).catch(err => {
         res.status(404).json({
-            status: "Couldn;t Post",
+            status: "Couldn't Post",
             result: err
         })
     })

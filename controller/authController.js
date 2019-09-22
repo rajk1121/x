@@ -104,6 +104,7 @@ const protectRoute = async (req, res, next) => {
             // res.send('Not logged In')
             next();
             console.log('tokens')
+            // throw err;
         } else {
             console.log('******')
             var decoded = jsonwebtoken.verify(token, "Secret Key");
@@ -119,6 +120,7 @@ const protectRoute = async (req, res, next) => {
                 res.end("User doesn't exist");
             }
             req.headers.user = dbdata;
+            res.locals.user = dbdata;
             req.headers.roles = dbdata.roles;
             console.log(dbdata)
             console.log(req.headers.roles)
@@ -163,7 +165,9 @@ const forgotPassword = async (req, res) => {
     else {
         console.log(dbdata)
         const token = dbdata.abc();
-        const test = await userModel.updateOne({ email: email }, dbdata);
+        console.log(dbdata);
+        const test = await userModel.updateOne({ "email": email }, dbdata, { new: true });
+        console.log(test);
         res.status(201).send({ test });
         // let options = {
         //     recieeverId: dbdata.email,

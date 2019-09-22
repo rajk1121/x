@@ -80,12 +80,8 @@ const UserSchema = new mongoose.Schema({
 
     },
     phone: { type: Number, required: true },
-    resetToken: {
-        type: String
-    },
-    ExpiresIn: {
-        type: Date
-    }
+    resetToken: String,
+    ExpiresIn: Date
 
 })
 UserSchema.pre('save', async function (next) {

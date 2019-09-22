@@ -1,3 +1,42 @@
+
+var stripe = Stripe('pk_test_uTkhHj3JV7PYr8Y0x8Zpdxm800Q25TpMVF');
+// stripe.redirectToCheckout({
+//   // Make the id field from the Checkout Session creation API response
+//   // available to this file, so you can provide it as parameter here
+//   // instead of the {{CHECKOUT_SESSION_ID}} placeholder.
+//   sessionId: '{{CHECKOUT_SESSION_ID}}'
+// }).then(function (result) {
+//   // If `redirectToCheckout` fails due to a browser or network
+//   // error, display the localized error message to your customer
+//   // using `result.error.message`.
+// });
+const bookPlanbtns = document.querySelectorAll('.bookPlan');
+// console.log("jvgajkclaniuachka")
+if (bookPlanbtns) {
+
+  for (let i = 0; i < bookPlanbtns.length; i++) {
+    // console.log(planId);
+    bookPlanbtns[i].addEventListener('click', e => {
+      e.preventDefault();
+
+      const planId = bookPlanbtns[i].getAttribute('data-plan-id');
+      console.log(planId);
+      bookPlan(planId);
+    })
+  }
+}
+const bookPlan = async (planId) => {
+
+  try {
+    const session = await axios(`http://localhost:3000/api/bookings/checkout-session/${planId}`)
+    stripe.redirectToCheckout({
+      sessionId: session.data.session.id
+    })
+  }
+  catch (err) {
+    console.log(err);
+  }
+}
 const login = async (email, password) => {
 
   const obj = {
