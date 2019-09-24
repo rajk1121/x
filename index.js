@@ -37,7 +37,7 @@ app.use(limiter);
 app.use(expressSanitizer());
 app.use(xss());
 app.use(cookieParser());
-app.use('cors');
+app.use(cors());
 app.use('/', viewRouter);
 app.use('/api/plans', planRouter);
 app.use('/api/user', userRouter);
