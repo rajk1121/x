@@ -32,7 +32,7 @@ const bookPlan = async (planId) => {
   try {
     console.log(window.location);
     // let url = window.location.href.split("/")
-    const session = await axios.get(`http://${window.location.hostname}/api/bookings/checkout-session/${planId}`)
+    const session = await axios.get(`/api/bookings/checkout-session/${planId}`)
     console.log(session);
     stripe.redirectToCheckout({
       sessionId: session.data.session.id
