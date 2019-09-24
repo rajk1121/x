@@ -92,10 +92,12 @@ if (forgot) {
     location.href = '/forgetPassword';
   })
 }
-const logoutbtn = document.getElementsByClassName('logoutbtn');
+const logoutbtn = document.querySelectorAll('.logoutbtn');
 if (logoutbtn) {
+  console.log('button exists');
 
-  if (logout[0]) {
+  if (logoutbtn[0]) {
+    console.log('button exists 1');
     logoutbtn[0].addEventListener('click', (e) => {
       console.log('logout')
       e.preventDefault();
@@ -103,7 +105,8 @@ if (logoutbtn) {
     })
   }
 
-  if (logout[1]) {
+  if (logoutbtn[1]) {
+    console.log('button exists 2');
     logoutbtn[1].addEventListener('click', (e) => {
       console.log('logout')
       e.preventDefault();
