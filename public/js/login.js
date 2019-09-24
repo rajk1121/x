@@ -18,6 +18,8 @@ if (bookPlanbtns) {
     // console.log(planId);
     bookPlanbtns[i].addEventListener('click', e => {
       e.preventDefault();
+      console.log(e.target.textContent)
+      e.target.textContent = 'Processing ...';
 
       const planId = bookPlanbtns[i].getAttribute('data-plan-id');
       console.log(planId);
