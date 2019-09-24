@@ -28,7 +28,7 @@ if (bookPlanbtns) {
 const bookPlan = async (planId) => {
 
   try {
-    const session = await axios(`http://localhost:3000/api/bookings/checkout-session/${planId}`)
+    const session = await axios.get(`http://localhost:3000/api/bookings/checkout-session/${planId}`)
     console.log(session);
     stripe.redirectToCheckout({
       sessionId: session.data.session.id
