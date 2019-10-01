@@ -12,6 +12,10 @@ if (btn) {
         console.log('lbwfbw')
         axios.post('/api/user/forgetPassword', obj).then((res) => {
             note.style.display = 'block';
+        }).catch((err) => {
+            alert(err.response.data.status);
+            console.log(err.response);
+            location.assign('/');
         })
     })
 }

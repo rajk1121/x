@@ -21,6 +21,7 @@ module.exports = class Email {
         });
 
     }
+    // let s=10;
     async send(template, subject) {
         //1. render pug
         let obj = {
@@ -43,8 +44,8 @@ module.exports = class Email {
     async sendWelcome() {
         this.send("welcome", "Welcome to Bon Apetite Family!!!")
     }
-    async sendForgot(){
-        this.send("welcome","Reset Password")
+    async sendForgot() {
+        this.send("welcome", "Reset Password")
     }
 }
 // module.exports = async function sendEmail(options) {

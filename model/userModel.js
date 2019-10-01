@@ -41,8 +41,9 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         validate: function abc(val) {
-            // console.log("2")
+            console.log("2")
             if (val !== this.password) {
+
                 throw new Error("Password does not match")
             }
         }
@@ -87,7 +88,7 @@ const UserSchema = new mongoose.Schema({
 UserSchema.pre('save', async function (next) {
     this.password = await bcrypt.hash(this.password, 8);
     this.confirmPassword = await bcrypt.hash(this.confirmPassword, 8);
-
+    console.log('Insode pre');
     next();
 })
 UserSchema.methods.abc = function () {
@@ -96,7 +97,7 @@ UserSchema.methods.abc = function () {
 
     this.resetToken = crypto.createHash('sha256').update(cryptoToken).digest('hex');
     console.log(this.resetToken)
-    this.ExpiresIn = Date.now() + 1000 * 60 * 7;
+    this.ExpiresIn = Date.now() + 1000;
     return cryptoToken;
 }
 const UserModels = mongoose.model('UserModel', UserSchema);

@@ -13,7 +13,12 @@ if (form) {
 
         }
         axios.patch('api/user/resetPassword?' + purl, obj).then((res) => {
+            console.log(res);
             alert(res.data);
+            location.assign('/');
+        }).catch((err) => {
+            alert(err.response.data.status);
+            console.log(err.response);
             location.assign('/');
         })
     })

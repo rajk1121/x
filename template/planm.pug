@@ -30,5 +30,8 @@ for res in result
             
         -}
       hr(style='border-color: rgb(224,224,224,0.4); width: 50%; margin-left: 25%; margin-top: 10px; margin-bottom: 10px;')
-      a#signbtn1(href='#') Sign Up now
+      if users
+       a#signbtn1.bookPlan(href='#' data-plan-id=`${res['_id']}`) Sign Up now
+      else
+       a#signbtn1(href='/login') Sign Up now 
  -i=i+1

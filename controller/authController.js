@@ -51,12 +51,16 @@ const signUp = async (req, res) => {
         var data = req.body;
         console.log(data)
         if (!data.email || !data.password) {
-            res.send("Invalid Credentials")
+            res.status(404).json({
+                status: "Invalid Creds"
+            })
         }
         var result = await userModel.create(data);
         var token = jsonwebtoken.sign({ id: result._id }, "Secret Key", { expiresIn: "1d" });
         res.cookie("jwt", token, { "httpOnly": true })
         let url = "https://google.com"
+
+        console.log(req.url);
         await new sendEmail(result, url).sendWelcome();
         res.status(201).json({
             status: "Registration Successfull",
@@ -74,11 +78,15 @@ const isLogged = async (req, res, next) => {
         if (req.cookies.jwt) {
             let token = req.cookies.jwt;
             console.log(token)
+            // console.log('inside isLo')
             const obj = await jsonwebtoken.verify(token, "Secret Key");
             console.log(obj);
             let user = await userModel.findById(obj.id);
             res.locals.users = user;
-            console.log(user)
+
+            // console.log(user)
+            
+
             next();
         }
         else {
@@ -174,6 +182,9 @@ const forgotPassword = async (req, res) => {
         //     token: token,
         //     subject: "Token For You"
         // }
+        let arrurl = req.url.split('/');
+        arrurl.pop();
+        console.log(arrurl);
         let url = "http://localhost:3000/resetPassword?id=" + dbdata.email + "&token=" + token;
         console.log(url)
         // let url="https://google.com"
@@ -190,11 +201,15 @@ const updatePassword = async (req, res) => {
         let confirmPass = req.body.confirmPass;
         let ans = await bcrypt.compare(currPass, dbPassword);
         if (!ans) {
-            res.status(404).send('Current Password does not match');
+            res.status(404).json({
+                status: 'Current Password does not match'
+            })
         }
         else {
             if (newPass != confirmPass) {
-                res.status(404).send('New Password does not match');
+                res.status(404).json({
+                    status: "Password Doesn't match"
+                })
             }
             else {
                 user.password = newPass;
@@ -211,6 +226,7 @@ const updatePassword = async (req, res) => {
     }
 }
 const resetPassword = async (req, res) => {
+    let daten = new Date(Date.now());
     let token = req.query.token;
     let id = req.query.id;
     console.log('*******************')
@@ -223,37 +239,47 @@ const resetPassword = async (req, res) => {
         res.status(404).send("User Not Found")
     }
     else {
-        let password = req.body.password;
-        let confirmPassword = req.body.confirmPassword;
-        console.log(password);
-        console.log(confirmPassword)
-        if (password != confirmPassword) {
-            res.status(404).send("Password Doesn't Match")
-        }
-        else {
-            console.log(dbdata.resetToken);
-            console.log(token)
+        console.log(daten);
+        console.log(dbdata.ExpiresIn);
+        if (dbdata.ExpiresIn <= daten) {
+            console.log('*************')
+            res.status(404).json({
+                status: "Token Expired"
+            })
+        } else {
 
-            let hashToken = crypto.createHash('sha256').update(token).digest('hex');
-            if (dbdata.resetToken != hashToken) {
-                res.status(404).json("Token Invalid")
+            let password = req.body.password;
+            let confirmPassword = req.body.confirmPassword;
+            console.log(password);
+            console.log(confirmPassword)
+            if (password != confirmPassword) {
+                res.status(404).send("Password Doesn't Match")
             }
             else {
-                dbdata.password = password;
-                dbdata.confirmPassword = confirmPassword;
-                console.log("hello")
+                console.log(dbdata.resetToken);
+                console.log(token)
 
-                console.log(dbdata)
-                dbdata.resetToken = undefined;
-                dbdata.ExpiresIn = undefined;
-                console.log(dbdata)
-                await dbdata.save()
+                let hashToken = crypto.createHash('sha256').update(token).digest('hex');
+                if (dbdata.resetToken != hashToken) {
+                    res.status(404).json("Token Invalid")
+                }
+                else {
+                    dbdata.password = password;
+                    dbdata.confirmPassword = confirmPassword;
+                    console.log("hello")
 
-                res.status(201).json({
-                    status: "Done"
-                })
+                    console.log(dbdata)
+                    dbdata.resetToken = undefined;
+                    dbdata.ExpiresIn = undefined;
+                    console.log(dbdata)
+                    await dbdata.save()
+
+                    res.status(201).json({
+                        status: "Done"
+                    })
+                }
+
             }
-
         }
     }
 }

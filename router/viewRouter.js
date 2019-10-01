@@ -2,8 +2,8 @@ const express = require("express");
 const { viewHomePage, viewLoginPage, viewReset, viewplansPage, viewProfilePage, forgetPassword, updatePassword, register } = require("../controller/viewController");
 const { protectRoute, isLogged } = require('../controller/authController')
 const viewRouter = express.Router();
-viewRouter.use(isLogged);
-viewRouter.get("/", viewHomePage);
+// viewRouter.use(isLogge/d);
+viewRouter.get("/", isLogged, viewHomePage);
 viewRouter.get("/profile", protectRoute, viewProfilePage)
 viewRouter.get('/resetPassword', protectRoute, viewReset);
 viewRouter.get('/forgetPassword', protectRoute, forgetPassword);

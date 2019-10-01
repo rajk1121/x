@@ -26,6 +26,10 @@ if (btn) {
                 alert('Registered');
                 location.assign('/');
             }
+        }).catch((err) => {
+            alert(err.response.data.status);
+            console.log(err.response);
+            location.assign('/');
         })
 
     })
