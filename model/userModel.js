@@ -97,7 +97,7 @@ UserSchema.methods.abc = function () {
 
     this.resetToken = crypto.createHash('sha256').update(cryptoToken).digest('hex');
     console.log(this.resetToken)
-    this.ExpiresIn = Date.now() + 1000;
+    this.ExpiresIn = Date.now() + 1000*60*7;
     return cryptoToken;
 }
 const UserModels = mongoose.model('UserModel', UserSchema);
