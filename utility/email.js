@@ -16,7 +16,7 @@ module.exports = class Email {
             port: 2525,
             auth: {
                 user: "rajat.mishra1121@gmail.com",
-                pass: "etkxvytjywpusjkn"
+                pass: process.env.pass
             }
         });
 

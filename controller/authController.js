@@ -182,6 +182,7 @@ const forgotPassword = async (req, res) => {
         //     token: token,
         //     subject: "Token For You"
         // }
+        // console.log(arrurl)
         let arrurl = req.url.split('/');
         arrurl.pop();
         console.log(arrurl);

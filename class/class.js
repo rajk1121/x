@@ -1,6 +1,7 @@
 function getMymail(to, from, url) {
     this.to = to;
     this.url = url;
+    
     this.from = from;
     this.getSender = function () {
         return "Sender is " + this.from;
