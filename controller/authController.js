@@ -10,26 +10,21 @@ const signIn = async (req, res) => {
 
             res.end('Information Not Available');
         }
-        console.log("hello")
         var dbdata = await userModel.findOne({
             email: data.email
         });
 
-        console.log("hello")
         if (!dbdata) {
             res.send('pwnwvpwvw')
             res.end("User Not Found");
         }
 
-        console.log("hello")
         var ans = await bcrypt.compare(data.password, dbdata.password);
         if (!ans) {
             res.end("Password Incorrect");
         }
-        console.log("hello")
         var token = jsonwebtoken.sign({ id: dbdata._id }, "Secret Key", { expiresIn: "1h" });
 
-        console.log("hello")
         res.cookie("jwt", token, { "httpOnly": true }, { expires: new Date(Date.now()) });
 
         res.status(201).json({
@@ -49,7 +44,6 @@ const signIn = async (req, res) => {
 const signUp = async (req, res) => {
     try {
         var data = req.body;
-        console.log(data)
         if (!data.email || !data.password) {
             res.status(404).json({
                 status: "Invalid Creds"
@@ -60,7 +54,6 @@ const signUp = async (req, res) => {
         res.cookie("jwt", token, { "httpOnly": true })
         let url = "https://google.com"
 
-        console.log(req.url);
         await new sendEmail(result, url).sendWelcome();
         res.status(201).json({
             status: "Registration Successfull",
@@ -74,18 +67,15 @@ const signUp = async (req, res) => {
 }
 const isLogged = async (req, res, next) => {
     try {
-        console.log("islogged")
         if (req.cookies.jwt) {
             let token = req.cookies.jwt;
-            console.log(token)
             // console.log('inside isLo')
             const obj = await jsonwebtoken.verify(token, "Secret Key");
-            console.log(obj);
             let user = await userModel.findById(obj.id);
             res.locals.users = user;
 
             // console.log(user)
-            
+
 
             next();
         }
@@ -104,9 +94,7 @@ const protectRoute = async (req, res, next) => {
     try {
         //  console.log(token)
         var token = req.cookies.jwt;
-        console.log("auth******");
         console.log(req.cookies);
-        console.log("auth*****")
 
         if (token == 'logout' || !token) {
             // res.send('Not logged In')
@@ -123,15 +111,13 @@ const protectRoute = async (req, res, next) => {
             // console.log(decoded)
 
             var dbdata = await userModel.findById(decoded.id);
-            console.log(dbdata)
             if (!dbdata) {
                 res.end("User doesn't exist");
             }
             req.headers.user = dbdata;
             res.locals.user = dbdata;
             req.headers.roles = dbdata.roles;
-            console.log(dbdata)
-            console.log(req.headers.roles)
+
             next();
         }
 
@@ -161,9 +147,9 @@ const forgotPassword = async (req, res) => {
     const email = req.body.email;
 
     // res.cookie('email', email, { "httpOnly": true }, { expires: new Date(Date.now()) + 20000 });
-    console.log(req.body)
-    console.log('aiwwfow')
-    console.log(email)
+    // console.log(req.body)
+    // console.log('aiwwfow')
+    // console.log(email)
     var dbdata = await userModel.findOne({ 'email': email });
     if (!dbdata) {
         res.status(404).json({
@@ -171,22 +157,11 @@ const forgotPassword = async (req, res) => {
         })
     }
     else {
-        console.log(dbdata)
+        // console.log(dbdata)
         const token = dbdata.abc();
-        console.log(dbdata);
         const test = await userModel.updateOne({ "email": email }, dbdata, { new: true });
-        console.log(test);
         res.status(201).send({ test });
-        // let options = {
-        //     recieeverId: dbdata.email,
-        //     token: token,
-        //     subject: "Token For You"
-        // }
-        // console.log(arrurl)
-        let arrurl = req.url.split('/');
-        arrurl.pop();
-        console.log(arrurl);
-        let url = "http://localhost:3000/resetPassword?id=" + dbdata.email + "&token=" + token;
+        let url = req.protocol + '://' + req.get('host') + "resetPassword?id=" + dbdata.email + "&token=" + token;
         console.log(url)
         // let url="https://google.com"
         // sendEmail(options);
@@ -215,7 +190,6 @@ const updatePassword = async (req, res) => {
             else {
                 user.password = newPass;
                 user.confirmPassword = confirmPass;
-                console.log(user)
                 await user.save();
                 console.log('After')
                 res.send("Password Updated")
@@ -230,17 +204,11 @@ const resetPassword = async (req, res) => {
     let daten = new Date(Date.now());
     let token = req.query.token;
     let id = req.query.id;
-    console.log('*******************')
-    console.log(req.query)
-    console.log('*******************')
-    console.log(id);
     let dbdata = await userModel.findOne({ 'email': id });
-    console.log(dbdata)
     if (!dbdata) {
         res.status(404).send("User Not Found")
     }
     else {
-        console.log(daten);
         console.log(dbdata.ExpiresIn);
         if (dbdata.ExpiresIn <= daten) {
             console.log('*************')
@@ -251,14 +219,10 @@ const resetPassword = async (req, res) => {
 
             let password = req.body.password;
             let confirmPassword = req.body.confirmPassword;
-            console.log(password);
-            console.log(confirmPassword)
             if (password != confirmPassword) {
                 res.status(404).send("Password Doesn't Match")
             }
             else {
-                console.log(dbdata.resetToken);
-                console.log(token)
 
                 let hashToken = crypto.createHash('sha256').update(token).digest('hex');
                 if (dbdata.resetToken != hashToken) {
@@ -269,10 +233,8 @@ const resetPassword = async (req, res) => {
                     dbdata.confirmPassword = confirmPassword;
                     console.log("hello")
 
-                    console.log(dbdata)
                     dbdata.resetToken = undefined;
                     dbdata.ExpiresIn = undefined;
-                    console.log(dbdata)
                     await dbdata.save()
 
                     res.status(201).json({

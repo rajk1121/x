@@ -13,7 +13,6 @@ module.exports.viewHomePage = async (req, res) => {
   });
 };
 module.exports.viewReset = async (req, res) => {
-  console.log('reset')
   // if (token == 'logout' || !token) {
   //   res.render('login.pug');
   // }
@@ -44,7 +43,6 @@ module.exports.forgetPassword = (req, res) => {
 }
 module.exports.viewProfilePage = async (req, res) => {
   let token = req.cookies.jwt;
-  console.log(token)
   if (token == 'logout' || !token) {
     res.render('login.pug');
   }
