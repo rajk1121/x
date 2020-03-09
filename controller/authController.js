@@ -161,7 +161,7 @@ const forgotPassword = async (req, res) => {
         const token = dbdata.abc();
         const test = await userModel.updateOne({ "email": email }, dbdata, { new: true });
         res.status(201).send({ test });
-        let url = req.protocol + '://' + req.get('host') + "resetPassword?id=" + dbdata.email + "&token=" + token;
+        let url = req.protocol + '://' + req.get('host') + "/resetPassword?id=" + dbdata.email + "&token=" + token;
         console.log(url)
         // let url="https://google.com"
         // sendEmail(options);

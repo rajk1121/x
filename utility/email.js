@@ -45,7 +45,7 @@ module.exports = class Email {
         this.send("welcome", "Welcome to Bon Apetite Family!!!")
     }
     async sendForgot() {
-        this.send("welcome", "Reset Password")
+        this.send("resetPassword", "Reset Password")
     }
 }
 // module.exports = async function sendEmail(options) {
